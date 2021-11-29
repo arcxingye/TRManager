@@ -22,8 +22,8 @@ TRManager-泰拉瑞亚服务器管理机器人插件
 * [x] 8. 加入黑名单(不能再注册并删除全服账户)、解除黑名单(允许再注册)
 
 ## 菜单
-- /tr菜单
-- /服管命令
+
+![image](https://github.com/arcxingye/TRManager/blob/main/Example.png?raw=true)
 
 ## 开始使用
 
