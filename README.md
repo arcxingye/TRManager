@@ -1,6 +1,8 @@
 ## 简介
 
+TRManager-泰拉瑞亚服务器管理机器人插件
 - 基于 [nonebot / nonebot2](https://github.com/nonebot/nonebot2)
+- 基于 Tshock RestAPI
 
 ## 特点
 
@@ -21,4 +23,4 @@
 
 ## 开始使用
 
-暂无说明
+暂无说明，自己装个nonebot2把文件放进去就能用
