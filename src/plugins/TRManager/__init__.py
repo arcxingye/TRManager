@@ -1,5 +1,6 @@
 from nonebot import on_keyword, on_command
 from nonebot.adapters.cqhttp import Bot, Event, PRIVATE, GROUP
+from nonebot.rule import command
 from nonebot.typing import T_State
 import urllib,os,re
 from datetime import datetime
@@ -19,7 +20,6 @@ async def admin_menu_(bot: Bot, event: Event, state: T_State):
 tr_menu = on_command("tr菜单", priority=5, permission=GROUP)
 @tr_menu.handle()
 async def tr_menu_(bot: Bot, event: Event):
-    print(event.get_event_name())
     result="服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n兑换:/tr兑换\n排行:/积分排行\n注册(仅限私聊)"
     await bot.send(
         event=event,
@@ -39,11 +39,10 @@ async def tr_wiki_(bot: Bot, event: Event, state: dict):
 tr_online = on_keyword(["/" + i + "在线" for i in server_alias_list], priority=4, permission=GROUP)
 @tr_online.handle()
 async def tr_online_(bot: Bot, event: Event):
-    server_online = (await SendTrRequest((str(event.get_message()).strip())[1:4], "cmd", "/playing"))
+    server_online = (await SendTrRequest((str(event.get_message()).strip()).replace("/","").replace("在线",""), "cmd", "/playing"))
     if server_online:
         if server_online['status'] == '200':
-            server_online = (';'.join(server_online['response'])).replace(
-                r"Online Players", "在线玩家")
+            server_online = (';'.join(server_online['response'])).replace(r"Online Players", "在线玩家")
         else:
             server_online = "响应错误~ err 2"
     else:
@@ -80,9 +79,10 @@ async def all_online_(bot: Bot, event: Event):
 single_exec = on_keyword(["/" + i for i in server_alias_list], priority=5, permission=GROUP)
 @single_exec.handle()
 async def single_exec_(bot: Bot, event: Event):
-    if len(str(event.get_message()).split(" ")) > 1:
+    command=str(event.get_message()).split(" ")
+    if len(command) > 1:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1], "GROUP"):
-            server_exec_result = (await SendTrRequest((str(event.get_message()).strip())[1:4], "cmd", (str(event.get_message()).strip())[5:]))
+            server_exec_result = (await SendTrRequest(command[0].replace("/",""), "cmd", (str(event.get_message()).strip())[5:]))
             if server_exec_result:
                 if server_exec_result['status'] == '200':
                     server_exec_result = ';'.join(
@@ -116,9 +116,10 @@ tr_cmd_ban = on_keyword(
     ["/" + i + " !ban" for i in server_alias_list], priority=4, permission=GROUP)
 @tr_cmd_ban.handle()
 async def tr_cmd_ban_(bot: Bot, event: Event):
-    if len(str(event.get_message()).split(" ")) > 2:
+    command=str(event.get_message()).split(" ")
+    if len(command) > 2:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1], "GROUP"):
-            server_exec_result = (await SendTrRequest((str(event.get_message()).strip())[1:4], "ban", (str(event.get_message()).strip())[10:]))
+            server_exec_result = (await SendTrRequest(command[0].replace("/",""), "ban", command[2]))
             if server_exec_result:
                 if server_exec_result['status'] == '200':
                     server_exec_result = server_exec_result['response']
@@ -133,9 +134,10 @@ tr_inv = on_keyword(
     ["/" + i + " /inv" for i in server_alias_list], priority=4, permission=GROUP)
 @tr_inv.handle()
 async def tr_inv_(bot: Bot, event: Event):
-    if len(str(event.get_message()).split(" ")) > 2:
-        inv_server=(str(event.get_message()).strip())[1:4]
-        inv_name=(str(event.get_message()).strip())[10:]
+    command=str(event.get_message()).split(" ")
+    if len(command) > 2:
+        inv_server=command[0].replace("/","")
+        inv_name=command[2]
         server_inv_result = await SendTrRequest(inv_server, "inv", inv_name)
         if server_inv_result:
             if server_inv_result['status'] == '200':
@@ -159,7 +161,6 @@ async def tr_inv_(bot: Bot, event: Event):
                 inv_result = await synInv(s3,s2,inv_name)
                 if inv_result:
                     test=str(os.path.abspath(inv_result)).replace(r'\\',r'/')
-                    print(test)
                     server_inv_result = [{
                         "type": "image",
                         "data": {
@@ -191,9 +192,9 @@ tr_exec_reg = on_keyword(["/" + i + " /reg" for i in server_alias_list], priorit
 async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
     command=str(event.get_message()).strip().split(" ")
     if len(command)==4:
-        server=command[0].strip().replace("/","")
-        username=command[2].strip()
-        password=command[3].strip()
+        server=command[0].replace("/","")
+        username=command[2]
+        password=command[3]
         # 验证是否有空
         if server and username and password:
             VerifyBan=await get_tr_isban(event.get_user_id())
@@ -263,7 +264,6 @@ qq_tr = on_command("/qq查tr", priority=5, permission=GROUP)
 async def qq_tr_(bot: Bot, event: Event, state: T_State):
     if VerifyPermissions((str(event.get_session_id()).split("_"))[1], "GROUP"):
         result=await get_qq_tr(str(event.get_message()).strip())
-        print(result)
         if result:
             msg=''
             for item in result:
@@ -292,9 +292,7 @@ async def add_ban_(bot: Bot, event: Event, state: T_State):
                         server.append(x[2])
                     i=0
                     for y in server:
-                        print(y,"cmd","user del "+user[i])
                         exec_result=await SendTrRequest(y,"cmd","/user del "+user[i])
-                        print(exec_result)
                         i+=1
                         if exec_result["response"][0]=="Account removed successfully.":
                             msg+=y+"删除账号成功\n"
