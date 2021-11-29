@@ -2,7 +2,7 @@
 
 TRManager-泰拉瑞亚服务器管理机器人插件
 - 基于 [nonebot / nonebot2](https://github.com/nonebot/nonebot2)
-- 基于 Tshock RestAPI
+- 基于 [Tshock / RestAPI](https://github.com/Pryaxis/TShock)
 
 ## 特点
 
@@ -20,6 +20,10 @@ TRManager-泰拉瑞亚服务器管理机器人插件
 * [ ] 6. 查饰品
 * [x] 7. 私聊注册
 * [x] 8. 加入黑名单(不能再注册并删除全服账户)、解除黑名单(允许再注册)
+
+## 菜单
+- /tr菜单
+- /服管命令
 
 ## 开始使用
 
