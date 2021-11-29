@@ -1,6 +1,6 @@
 from nonebot import on_keyword, on_command
 from nonebot.adapters.cqhttp import Bot, Event, PRIVATE, GROUP
-from nonebot.typing import T_EventPostProcessor, T_State
+from nonebot.typing import T_State
 import configparser
 import requests,json,re,os
 import urllib,urllib3
@@ -438,7 +438,7 @@ async def query_score_(bot: Bot, event: Event, state: T_State):
     if len(str(event.get_message()))==0:
         result=await tr_sign_in(int(event.get_user_id()))
         if result:
-            if result[0][2]:
+            if result[0][2]>=0:
                 await query_score.send("你现在拥有"+str(result[0][2])+"积分\n已连续签到"+str(result[0][3])+"天")
             else:
                 await query_score.send("获取账户失败")
@@ -447,7 +447,7 @@ async def query_score_(bot: Bot, event: Event, state: T_State):
     elif len(str(event.get_message()))>0:
         result=await tr_sign_in(int(str(event.get_message())))
         if result:
-            if result[0][2]:
+            if result[0][2]>=0:
                 await query_score.send("TA现在拥有"+str(result[0][2])+"积分\n已连续签到"+str(result[0][3])+"天")
             else:
                 await query_score.send("获取账户失败")
