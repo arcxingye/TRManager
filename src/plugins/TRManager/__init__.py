@@ -19,7 +19,7 @@ async def admin_menu_(bot: Bot, event: Event, state: T_State):
 tr_menu = on_command("tr菜单", priority=5, permission=GROUP)
 @tr_menu.handle()
 async def tr_menu_(bot: Bot, event: Event):
-    result="服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n兑换:/tr兑换\n排行:/积分排行\n注册(仅限私聊)"
+    result="服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\ntr商店:/tr商店\n排行:/积分排行\n注册(仅限私聊)"
     await bot.send(
         event=event,
         message = result
@@ -420,8 +420,8 @@ async def tr_shop_(bot: Bot, event: Event):
     title="[兑换商店]\n"
     goods=''
     for item in shop_list:
-        goods+=str(item[0])+"."+item[1]+str(item[3])+"个 "+str(item[4])+"\n"
-    tips="\n完整命令/tr兑换 <服名> <角色> <商品前面数字>\n请确保角色在线不然分没还不得物品"
+        goods+=str(item[0])+"."+item[1]+str(item[3])+"个 "+str(item[4])+"分\n"
+    tips="\n完整命令/tr兑换 <服名> <角色> <商品前面数字>\n请确保角色在线不然分扣了物品也没得到("
     await tr_shop.send(title+goods+tips)
 
 # tr兑换
