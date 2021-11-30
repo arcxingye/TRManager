@@ -20,21 +20,14 @@ tr_menu = on_command("tr菜单", priority=5, permission=GROUP)
 @tr_menu.handle()
 async def tr_menu_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        result="服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n商店:/tr商店\n排行:/积分排行\n注册(仅限私聊)"
-        await bot.send(
-            event=event,
-            message = result
-        )
+        await tr_menu.send("服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n商店:/tr商店\n排行:/积分排行\n注册(仅限私聊)")
 
 # 泰拉瑞亚wiki查询
 tr_wiki = on_command("/wiki", priority=5)
 @tr_wiki.handle()
 async def tr_wiki_(bot: Bot, event: Event, state: dict):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        await bot.send(
-            event = event,
-            message = "https://terraria.fandom.com/zh/index.php?search="+urllib.parse.quote(str(event.message))
-        )
+        await tr_wiki.send("https://terraria.fandom.com/zh/index.php?search="+urllib.parse.quote(str(event.message)))
 
 # 单服在线查询
 tr_online = on_keyword(["/" + i + "在线" for i in server_alias_list], priority=4, permission=GROUP)
