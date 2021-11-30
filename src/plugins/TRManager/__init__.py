@@ -418,7 +418,7 @@ async def set_score_(bot: Bot, event: Event, state: T_State):
 tr_shop = on_command("/tr商店", priority=5, permission=GROUP)
 @tr_shop.handle()
 async def tr_shop_(bot: Bot, event: Event):
-    if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
+    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         title="[兑换商店]\n"
         goods=''
         for item in shop_list:
@@ -430,7 +430,7 @@ async def tr_shop_(bot: Bot, event: Event):
 tr_buy = on_command("/tr兑换", priority=5, permission=GROUP)
 @tr_buy.handle()
 async def tr_buy_(bot: Bot, event: Event):
-    if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
+    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         command=str(event.get_message()).strip().split(" ")
         if len(str(command)) > 3:
             server=command[0]
