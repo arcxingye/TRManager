@@ -1,6 +1,8 @@
 ## 简介
 
-TRManager-泰拉瑞亚服务器管理机器人插件  [安装指南](https://xingye.me/?p=436)
+TRManager-泰拉瑞亚服务器管理机器人插件
+
+不会用的看->[安装指南](https://xingye.me/?p=436)，会用的你自个扔进去plugins就行
 - 基于 [nonebot / nonebot2](https://github.com/nonebot/nonebot2)
 - 基于 [Tshock / RestAPI](https://github.com/Pryaxis/TShock)
 
