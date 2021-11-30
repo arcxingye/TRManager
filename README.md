@@ -1,6 +1,8 @@
 ## 简介
 
 TRManager-泰拉瑞亚服务器管理机器人插件
+
+不会用的看->[安装指南](https://xingye.me/?p=436)，会用的你自个扔进去plugins就行
 - 基于 [nonebot / nonebot2](https://github.com/nonebot/nonebot2)
 - 基于 [Tshock / RestAPI](https://github.com/Pryaxis/TShock)
 
@@ -11,6 +13,7 @@ TRManager-泰拉瑞亚服务器管理机器人插件
 - 电脑、手机服务器通用(tshock)
 - 适用于多台服务器的群组服
 - 专群专用，不影响非TR群
+- 长期更新(只要THAC服还在)
 
 ## 功能
 
@@ -28,8 +31,4 @@ TRManager-泰拉瑞亚服务器管理机器人插件
 
 ![image](https://github.com/arcxingye/TRManager/blob/main/Example.png?raw=true)
 
-## 开始使用
 
-暂无说明，自己装个nonebot2，然后把插件放进去读就能用
-
-需要填的地方：src/plugins/config.py 里面有注释，先填配置再启动
