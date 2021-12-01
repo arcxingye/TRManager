@@ -20,7 +20,7 @@ tr_menu = on_command("tr菜单", priority=5, permission=GROUP)
 @tr_menu.handle()
 async def tr_menu_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        await tr_menu.send("服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n商店:/tr商店\n排行:/积分排行\n抽奖:/tr抽奖\n注册(仅限私聊)")
+        await tr_menu.send("-------[THAC]-------\n服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查装备:/<服名> /arm <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n商店:/tr商店\n排行:/积分排行\n抽奖:/tr抽奖\n注册(仅限私聊)")
 
 # 泰拉瑞亚wiki查询
 tr_wiki = on_command("/wiki", priority=5)
@@ -177,6 +177,22 @@ async def tr_inv_(bot: Bot, event: Event):
             else:
                 server_inv_result = "你要执行的服爆炸了~ err 1"
             await tr_inv.send(server_inv_result)
+
+# 查装备
+tr_arm = on_keyword(
+    ["/" + i + " /arm" for i in server_alias_list], priority=4, permission=GROUP)
+@tr_arm.handle()
+async def tr_arm_(bot: Bot, event: Event):
+    command=str(event.get_message()).split(" ")
+    if len(command) > 2:
+        if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+            inv_server=command[0].replace("/","")
+            inv_name=command[2]
+            server_inv_result = await SendTrRequest(inv_server, "inv", inv_name)
+            if server_inv_result:
+                if server_inv_result['status'] == '200':
+                    server_inv_result = server_inv_result['armor']
+                    await tr_arm.send(server_inv_result)
 
 # 注册提示
 tr_reg_tip = on_command("注册", priority=4, permission=PRIVATE)
@@ -418,7 +434,7 @@ async def set_score_(bot: Bot, event: Event, state: T_State):
 tr_shop = on_command("/tr商店", priority=5, permission=GROUP)
 @tr_shop.handle()
 async def tr_shop_(bot: Bot, event: Event):
-    # if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         if event.get_message():
             page=int(str(event.get_message()).strip())
         else:
@@ -452,7 +468,7 @@ async def tr_shop_(bot: Bot, event: Event):
 tr_buy = on_command("/tr兑换", priority=5, permission=GROUP)
 @tr_buy.handle()
 async def tr_buy_(bot: Bot, event: Event):
-    # if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         command=str(event.get_message()).strip().split(" ")
         if len(str(command)) > 3:
             server=command[0]
