@@ -1,7 +1,7 @@
 from nonebot import on_keyword, on_command
 from nonebot.adapters.cqhttp import Bot, Event, PRIVATE, GROUP
 from nonebot.typing import T_State
-import urllib,os,re,random
+import urllib,os,re,random,math
 from datetime import datetime
 from .model import *
 from .config import *
@@ -20,7 +20,7 @@ tr_menu = on_command("tr菜单", priority=5, permission=GROUP)
 @tr_menu.handle()
 async def tr_menu_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        await tr_menu.send("服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n商店:/tr商店\n排行:/积分排行\n注册(仅限私聊)")
+        await tr_menu.send("服在线:/<服名>在线\n查全服:/全服在线\n查背包:/<服名> /inv <玩家名>\n查wiki:/wiki <内容>\n签到:/tr签到\n查询:/查积分\n商店:/tr商店\n排行:/积分排行\n抽奖:/tr抽奖\n注册(仅限私聊)")
 
 # 泰拉瑞亚wiki查询
 tr_wiki = on_command("/wiki", priority=5)
@@ -418,46 +418,82 @@ async def set_score_(bot: Bot, event: Event, state: T_State):
 tr_shop = on_command("/tr商店", priority=5, permission=GROUP)
 @tr_shop.handle()
 async def tr_shop_(bot: Bot, event: Event):
-    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        title="[兑换商店]\n"
-        goods=''
-        for item in shop_list:
-            goods+=str(item[0])+"."+item[1]+str(item[3])+"个 "+str(item[4])+"分\n"
-        tips="\n完整命令/tr兑换 <服名> <角色> <商品前面数字>\n请确保角色在线不然分扣了物品也没得到("
-        await tr_shop.send(title+goods+tips)
+    # if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+        if event.get_message():
+            page=int(str(event.get_message()).strip())
+        else:
+            page=1
+        title="[积分商店]\n"
+        num=10 # 每页数量
+        goods='' # 单个项目
+        count=len(shop_list)
+        total=math.ceil(count/num)
+        start=(page-1)*num
+        end=page*num
+        if page==total:
+            end=start+count%num
+        elif page>total:
+            await tr_shop.finish("一共就"+str(total)+"页，你给我打个"+str(page)+"?")
+        elif page<0:
+            await tr_shop.finish("你TM负数页码都整出来了是吧")
+        for i in range(start,end):
+            goods+=str(start+1)+"."+shop_list[i][0]+" "+str(shop_list[i][2])+"分\n"
+            start+=1
+        page_list=''
+        for j in range(0,total):
+            if page-1==j:
+                page_list+=">"+str(j+1)+" "
+            else:
+                page_list+=str(j+1)+" "
+        tips="\n/tr商店 <页码>\n/tr兑换 <服名> <角色> <商品序号>"
+        await tr_shop.send(title+goods+page_list+tips)
 
 # tr兑换
 tr_buy = on_command("/tr兑换", priority=5, permission=GROUP)
 @tr_buy.handle()
 async def tr_buy_(bot: Bot, event: Event):
-    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+    # if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         command=str(event.get_message()).strip().split(" ")
         if len(str(command)) > 3:
             server=command[0]
             username=command[1]
             good=command[2]
-            item_id=shop_list[int(good)-1][2]
-            cost=shop_list[int(good)-1][4]
-            num=shop_list[int(good)-1][3]
+            cost=shop_list[int(good)-1][2]
+            exec=str(shop_list[int(good)-1][1]).replace("[player]",username)
             # 查询积分
             score_result=await tr_sign_in(event.get_user_id())
             if score_result:
                 if score_result[0][2]-cost>=0:
-                    # 扣除积分
-                    delete_result=await tr_delete_score(int(event.get_user_id()),score_result[0][3]-cost)
-                    if delete_result:
-                        # 执行给物品指令
-                        exec_result=await SendTrRequest(server,"cmd","/give "+str(item_id)+" "+str(username)+" "+str(num))
-                        if exec_result:
-                            if exec_result['response'][0][0:4]=="Gave":
-                                await tr_buy.send("已发放物品")
+                    # 查询玩家是否在线
+                    online_result=await SendTrRequest(server,"inv",username)
+                    if online_result:
+                        if online_result['status']=='200':
+                            # 扣除积分
+                            delete_result=await tr_delete_score(int(event.get_user_id()),score_result[0][3]-cost)
+                            if delete_result:
+                                # 执行给物品指令
+                                exec_result=await SendTrRequest(server,"cmd",exec)
+                                if exec_result:
+                                    if exec_result['response'][0][0:4]=='Gave':
+                                        await tr_buy.send("已发放"+shop_list[int(good)-1][0]+"给"+username)
+                                    else:
+                                        await tr_buy.send("未成功发放，花积分买了个教训(")
+                                else:
+                                    await tr_buy.send("服不存在或裂开了，积分花了个寂寞(")
                             else:
-                                await tr_buy.send("未成功发放，花积分买了个教训(")
+                                await tr_buy.send("积分操作失败")
                         else:
-                            await tr_buy.send("服不存在或裂开了，积分花了个寂寞(")
+                            await tr_buy.send("角色不在线")
                     else:
-                        await tr_buy.send("积分操作失败")
+                        await tr_buy.send("服务器裂开了，暂时不能兑换")
                 else:
                     await tr_buy.send("积分不足")
             else:
                 await tr_buy.send("未获取到积分数据")
+
+#抽奖
+tr_raffle = on_command("/tr抽奖", priority=5, permission=GROUP)
+@tr_raffle.handle()
+async def tr_raffle_(bot: Bot, event: Event):
+    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+        await tr_raffle.send("[奖池]\n还没东西~")
