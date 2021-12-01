@@ -30,6 +30,5 @@ TRManager-泰拉瑞亚服务器管理机器人插件
 
 ## 菜单
 
-![image](https://github.com/arcxingye/TRManager/blob/main/Example.png?raw=true)
-
-
+- tr菜单(TR群用)
+- 服管菜单(管理群用)
