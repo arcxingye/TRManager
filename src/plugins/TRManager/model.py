@@ -1,34 +1,33 @@
-import sqlite3
+import sqlite3,os
 import numpy as np
 # 创建与数据库的连接 
 sqlite3.register_adapter(np.int64, int)
 conn = sqlite3.connect('tr.db')
 # 创建一个游标 cursor
 cur = conn.cursor()
-# # 用户数据
-# sql_table_1 = '''CREATE TABLE tr_user 
-#            (id integer PRIMARY KEY autoincrement, 
-#             qq integer, 
-#             server TEXT,
-#             username TEXT);''' 
-# cur.execute(sql_table_1)
-
-# # 黑名单
-# sql_table_2 = '''CREATE TABLE tr_ban 
-#            (id integer PRIMARY KEY autoincrement, 
-#             qq integer, 
-#             reason TEXT);''' 
-# cur.execute(sql_table_2)
-
-# # 积分数据
-# sql_table_3 = '''CREATE TABLE tr_score 
-#            (id integer PRIMARY KEY autoincrement, 
-#             qq integer, 
-#             score integer,
-#             count integer,
-#             update_time timestamp,
-#             create_time timestamp);''' 
-# cur.execute(sql_table_3)
+if not os.path.exists('tr.db'):
+    # 用户数据
+    sql_table_1 = '''CREATE TABLE tr_user 
+               (id integer PRIMARY KEY autoincrement, 
+                qq integer, 
+                server TEXT,
+                username TEXT);''' 
+    cur.execute(sql_table_1)
+    # 黑名单
+    sql_table_2 = '''CREATE TABLE tr_ban 
+               (id integer PRIMARY KEY autoincrement, 
+                qq integer, 
+                reason TEXT);''' 
+    cur.execute(sql_table_2)
+    # 积分数据
+    sql_table_3 = '''CREATE TABLE tr_score 
+               (id integer PRIMARY KEY autoincrement, 
+                qq integer, 
+                score integer,
+                count integer,
+                update_time timestamp,
+                create_time timestamp);''' 
+    cur.execute(sql_table_3)
 
 # 查询QQ是否黑名单
 async def get_tr_isban(qq:int):
