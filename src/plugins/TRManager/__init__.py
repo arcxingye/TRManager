@@ -8,38 +8,41 @@ from .config import *
 from .data_source import SendTrRequest,get_wiki_img
 from .syn_img import synInv
 
+admin_menu_list="-----[ADMIN_MENU]-----\n" \
+    "执行命令:/<服名> /<命令>\n" \
+    "全服执行:/全服执行 /<命令>\n" \
+    "ban人:/<服名> !ban <角色名>\n" \
+    "qq号查角色:/qq查tr <qq>\n" \
+    "角色查qq:/tr查qq <服名> <角色名>\n" \
+    "加入黑名单:/trban <qq> <理由>\n" \
+    "解除黑名单:/bandel <qq>\n" \
+    "改积分:/设置积分 <qq> <分> <连续天数>"
+tr_menu_list="-----[TR_MENU]-----\n" \
+    "服在线:/<服名>在线\n" \
+    "查全服:/全服在线\n" \
+    "查背包:/<服名> /inv <玩家名>\n" \
+    "查装备:/<服名> /arm <玩家名>\n" \
+    "查wiki:/wiki <内容>\n" \
+    "签到:/tr签到\n" \
+    "查询:/查积分\n" \
+    "商店:/tr商店\n" \
+    "排行:/积分排行\n" \
+    "抽奖:/tr抽奖\n" \
+    "注册(仅限私聊)"
+
 # 服管菜单
 admin_menu = on_command("服管菜单", priority=5, permission=GROUP)
 @admin_menu.handle()
 async def admin_menu_(bot: Bot, event: Event, state: T_State):
     if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-        await admin_menu.send("-------[THAC]-------\n\
-执行命令:/<服名> /<命令>\n\
-全服执行:/全服执行 /<命令>\n\
-ban人:/<服名> !ban <角色名>\n\
-qq号查角色:/qq查tr <qq>\n\
-角色查qq:/tr查qq <服名> <角色名>\n\
-加入黑名单:/trban <qq> <理由>\n\
-解除黑名单:/bandel <qq>\n\
-改积分:/设置积分 <qq> <分> <连续天数>")
+        await admin_menu.send(admin_menu_list)
 
 # tr菜单
 tr_menu = on_command("tr菜单", priority=5, permission=GROUP)
 @tr_menu.handle()
 async def tr_menu_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        await tr_menu.send("-------[THAC]-------\n\
-服在线:/<服名>在线\n\
-查全服:/全服在线\n\
-查背包:/<服名> /inv <玩家名>\n\
-查装备:/<服名> /arm <玩家名>\n\
-查wiki:/wiki <内容>\n\
-签到:/tr签到\n\
-查询:/查积分\n\
-商店:/tr商店\n\
-排行:/积分排行\n\
-抽奖:/tr抽奖\n\
-注册(仅限私聊)")
+        await tr_menu.send(tr_menu_list)
 
 # 泰拉瑞亚wiki查询
 tr_wiki = on_command("/wiki", priority=5)
