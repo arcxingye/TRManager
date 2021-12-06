@@ -132,7 +132,7 @@ async def all_exec_(bot: Bot, event: Event):
                 else:
                     all_result += (item+">响应错误~ err 2\n")
             else:
-                all_result += (item+">爆炸了~ err 1\n").strip('\n')
+                all_result += str(item+">爆炸了~ err 1\n").strip('\n')
         await all_exec.send(all_result)
 
 # 执行ban
@@ -220,71 +220,73 @@ async def tr_arm_(bot: Bot, event: Event):
 tr_reg_tip = on_command("注册", priority=4, permission=PRIVATE)
 @tr_reg_tip.handle()
 async def tr_reg_tip_(bot: Bot, event: Event, state: T_State):
-    msg=''
-    for item in server_alias_list:
-        result=await SendTrRequest(item, "cmd", "/playing")
-        if result:
-            msg+=item+","
-    await tr_reg_tip.send("请输入命令：\n/<服名> /reg 角色名 密码\n示例:在x77注册名为test的角色即输入/x77 /reg test abcdefg\n注意事项：\n1.每个内容之间只有一个空格\n2.用户名只能中文英文数字下划线，且用户名密码不能用空格\n3.仅能在开放的服注册，目前开放的服务器："+msg+"服务器命名规则：前缀字母+端口后两位，m代表主服")
+    if VerifyTrGroup(str(event.sender.group_id)) or VerifyPermissions(str(event.sender.group_id)):
+        msg=''
+        for item in server_alias_list:
+            result=await SendTrRequest(item, "cmd", "/playing")
+            if result:
+                msg+=item+","
+        await tr_reg_tip.send("请输入命令：\n/<服名> /reg 角色名 密码\n示例:在x77注册名为test的角色即输入/x77 /reg test abcdefg\n注意事项：\n1.每个内容之间只有一个空格\n2.用户名只能中文英文数字下划线，且用户名密码不能用空格\n3.仅能在开放的服注册，目前开放的服务器："+msg+"服务器命名规则：前缀字母+端口后两位，m代表主服")
 
 # 执行注册
 tr_exec_reg = on_keyword(["/" + i + " /reg" for i in server_alias_list], priority=4, permission=PRIVATE)
 @tr_exec_reg.handle()
 async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
-    command=str(event.get_message()).strip().split(" ")
-    if len(command)==4:
-        server=command[0].replace("/","")
-        username=command[2]
-        password=command[3]
-        # 验证是否有空
-        if server and username and password:
-            VerifyBan=await get_tr_isban(event.get_user_id())
-            # 验证QQ是否被封禁
-            if not VerifyBan:
-                result=False
-                for item in server_alias_list:
-                    if server==item:
-                        result=await SendTrRequest(item, "cmd", "/playing")
-                if result:
-                    reged=await get_tr_reged(int(event.get_user_id()),server)
-                    #验证是否已注册
-                    if not reged:
-                        if re.search("^[\u4e00-\u9fa5_a-zA-Z0-9]+$", username, flags=0):
-                            exec_result=await SendTrRequest(server, "cmd", "/user add "+username+" "+password+" default")
-                            if exec_result:
-                                if exec_result['response'][0]=="User "+username+" already exists!":
-                                    await tr_exec_reg.send("该服id:"+username+"已存在，请尝试使用其他名字")
-                                elif exec_result['response'][0]=="Account "+username+" has been added to group default!":
-                                    insert_result=await tr_add_user(event.get_user_id(),server,username)
-                                    if insert_result:
-                                        await tr_exec_reg.send("成功注册，牢记你的信息 "+server+"->"+username+"->"+password+"\n现在你可以进去玩了~")
+    if VerifyTrGroup(str(event.sender.group_id)) or VerifyPermissions(str(event.sender.group_id)):
+        command=str(event.get_message()).strip().split(" ")
+        if len(command)==4:
+            server=command[0].replace("/","")
+            username=command[2]
+            password=command[3]
+            # 验证是否有空
+            if server and username and password:
+                VerifyBan=await get_tr_isban(event.get_user_id())
+                # 验证QQ是否被封禁
+                if not VerifyBan:
+                    result=False
+                    for item in server_alias_list:
+                        if server==item:
+                            result=await SendTrRequest(item, "cmd", "/playing")
+                    if result:
+                        reged=await get_tr_reged(int(event.get_user_id()),server)
+                        #验证是否已注册
+                        if not reged:
+                            if re.search("^[\u4e00-\u9fa5_a-zA-Z0-9]+$", username, flags=0):
+                                exec_result=await SendTrRequest(server, "cmd", "/user add "+username+" "+password+" default")
+                                if exec_result:
+                                    if exec_result['response'][0]=="User "+username+" already exists!":
+                                        await tr_exec_reg.send("该服id:"+username+"已存在，请尝试使用其他名字")
+                                    elif exec_result['response'][0]=="Account "+username+" has been added to group default!":
+                                        insert_result=await tr_add_user(event.get_user_id(),server,username)
+                                        if insert_result:
+                                            await tr_exec_reg.send("成功注册，牢记你的信息 "+server+"->"+username+"->"+password+"\n现在你可以进去玩了~")
+                                        else:
+                                            await SendTrRequest(server, "cmd", "/user del "+username+" "+password)
+                                            await tr_exec_reg.send("注册失败，请截图私聊服管进行相应处理")
+                                            for group in TR_ADMIN_GROUP:
+                                                await bot.send_group_msg(
+                                                    group_id=int(group),
+                                                    message=event.get_user_id()+"在"+server+"注册"+username+"失败,请注意可能需要删除该账号",
+                                                )
                                     else:
-                                        await SendTrRequest(server, "cmd", "/user del "+username+" "+password)
-                                        await tr_exec_reg.send("注册失败，请截图私聊服管进行相应处理")
+                                        await tr_exec_reg.send("注册失败")
                                         for group in TR_ADMIN_GROUP:
-                                            await bot.send_group_msg(
-                                                group_id=int(group),
-                                                message=event.get_user_id()+"在"+server+"注册"+username+"失败,请注意可能需要删除该账号",
-                                            )
-                                else:
-                                    await tr_exec_reg.send("注册失败")
-                                    for group in TR_ADMIN_GROUP:
-                                            await bot.send_group_msg(
-                                                group_id=int(group),
-                                                message=event.get_user_id()+"在"+server+"注册"+username+"失败"+str(exec_result['response']),
-                                            )
+                                                await bot.send_group_msg(
+                                                    group_id=int(group),
+                                                    message=event.get_user_id()+"在"+server+"注册"+username+"失败"+str(exec_result['response']),
+                                                )
+                            else:
+                                await tr_exec_reg.reject("用户名包含中文数字下划线以外的字符，请重新输入")
                         else:
-                            await tr_exec_reg.reject("用户名包含中文数字下划线以外的字符，请重新输入")
+                            await tr_exec_reg.send("你已在"+server+"注册过了，一个人只能注册一个号哦")
                     else:
-                        await tr_exec_reg.send("你已在"+server+"注册过了，一个人只能注册一个号哦")
+                        await tr_exec_reg.send("服名不存在或服务器没在开，请重新输入")
                 else:
-                    await tr_exec_reg.send("服名不存在或服务器没在开，请重新输入")
+                    await tr_exec_reg.send("你已被封禁，无法进行注册。理由："+VerifyBan[0][2])
             else:
-                await tr_exec_reg.send("你已被封禁，无法进行注册。理由："+VerifyBan[0][2])
+                await tr_exec_reg.send("命令中存在空值")
         else:
-            await tr_exec_reg.send("命令中存在空值")
-    else:
-        await tr_exec_reg.send("格式不正确，正确命令格式：/<服名> /reg 角色名 密码")
+            await tr_exec_reg.send("格式不正确，正确命令格式：/<服名> /reg 角色名 密码")
 
 # 查询qq号:
 tr_qq = on_command("/tr查qq", priority=5, permission=GROUP)
