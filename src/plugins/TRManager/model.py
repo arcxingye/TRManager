@@ -1,12 +1,10 @@
 import sqlite3,os
 import numpy as np
-# 创建与数据库的连接 
-sqlite3.register_adapter(np.int64, int)
-conn = sqlite3.connect('tr.db')
-# 创建一个游标 cursor
-cur = conn.cursor()
+#初始化建表
 if not os.path.exists('tr.db'):
     # 用户数据
+    conn = sqlite3.connect('tr.db')
+    cur = conn.cursor()
     sql_table_1 = '''CREATE TABLE tr_user 
                (id integer PRIMARY KEY autoincrement, 
                 qq integer, 
@@ -28,6 +26,12 @@ if not os.path.exists('tr.db'):
                 update_time timestamp,
                 create_time timestamp);''' 
     cur.execute(sql_table_3)
+
+# 创建与数据库的连接 
+sqlite3.register_adapter(np.int64, int)
+conn = sqlite3.connect('tr.db')
+# 创建一个游标 cursor
+cur = conn.cursor()
 
 # 查询QQ是否黑名单
 async def get_tr_isban(qq:int):
