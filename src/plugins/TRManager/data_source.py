@@ -18,7 +18,7 @@ async def SendTrRequest(alias: str, types: str, req: str):
     else:
         return json.loads(r.content)
 
-# 爬wiki图
+# 爬物品的wiki图
 async def get_wiki_img(name: str):
     _name = urllib.parse.quote(str(name.replace(" ", "_").replace("/", "_")))
     wiki_url = "https://terraria.fandom.com/wiki/"+_name
@@ -30,7 +30,7 @@ async def get_wiki_img(name: str):
         wiki_html = page.read().decode('utf-8')
         reg = 'src="(https://static.wikia.nocookie.net/terraria_gamepedia/images/.*?)"'
         img_result = re.findall(reg, wiki_html)
-        img_url = [s for s in img_result if _name in s][0]
+        img_url = [s for s in img_result if _name+"." in s][0]
         print(img_url)
         img = urllib3.PoolManager().request('GET', img_url)
         path = "./data/images/tr_item/"+name+".png"
