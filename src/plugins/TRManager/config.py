@@ -6,20 +6,12 @@ TR_ADMIN_GROUP=[12345,54321]
 # 商店配置：("商品描述","执行的指令",花费积分数)
 # 可无限添加商品，续写一定要注意格式和符号
 shop_list=[
-    ("生命果2个","/give 1291 [player] 2",3),
-    ("木材99个","/give 9 [player] 99",1),
-    ("测试条目1","/give 9 [player] 99",9),
-    ("测试条目2","/give 9 [player] 99",9),
-    ("测试条目3","/give 9 [player] 99",9),
-    ("测试条目4","/give 9 [player] 99",9),
-    ("测试条目5","/give 9 [player] 99",9),
-    ("测试条目6","/give 9 [player] 99",9),
-    ("测试条目7","/give 9 [player] 99",9),
-    ("测试条目8","/give 9 [player] 99",9),
-    ("测试条目9","/give 9 [player] 99",9),
-    ("测试条目10","/give 9 [player] 99",9),
-    ("测试条目11","/give 9 [player] 99",9),
-    ("测试条目12","/give 9 [player] 99",9),
+    ("木材99个","/give 9 [player] 99",2),
+    ("爱吃的大嘴巴子","/slap [player] 1",1),
+    ("芜湖起飞","/rocket [player]",1),
+    ("木板条箱3个","/give 2334 [player] 3",3),
+    ("草药袋2个","/give 3093 [player] 2",2),
+    ("生命水晶2个","/give 29 [player] 2",4),
 ]
 
 raffle_list=[] # 这个还没做
