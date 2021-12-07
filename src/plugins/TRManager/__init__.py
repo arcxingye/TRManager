@@ -106,7 +106,7 @@ async def single_exec_(bot: Bot, event: Event):
                 if i>0:
                     exec_cmd+=item+" "
                 i+=1
-            server_exec_result = (await SendTrRequest(command[0].replace("/",""), "cmd", exec_cmd.strip()))
+            server_exec_result = await SendTrRequest(command[0].replace("/",""), "cmd", exec_cmd.strip())
             if server_exec_result:
                 if server_exec_result['status'] == '200':
                     server_exec_result = ';'.join(
@@ -491,12 +491,12 @@ async def tr_shop_(bot: Bot, event: Event):
         await tr_shop.send(title+goods+page_list+tips)
 
 # tr兑换
-tr_buy = on_command("/tr兑换", priority=5, permission=GROUP)
+tr_buy = on_command("/tr兑换", priority=4, permission=GROUP)
 @tr_buy.handle()
 async def tr_buy_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         command=str(event.get_message()).strip().split(" ")
-        if len(str(command)) > 3:
+        if len(command) > 2:
             server=command[0].replace("/","")
             username=command[1]
             good=command[2]
