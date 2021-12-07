@@ -259,7 +259,7 @@ async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
                                     elif exec_result['response'][0]=="Account "+username+" has been added to group default!":
                                         insert_result=await tr_add_user(event.get_user_id(),server,username)
                                         if insert_result:
-                                            await tr_exec_reg.send("成功注册，牢记你的信息 "+server+"->"+username+"->"+password+"\n现在你可以进去玩了~")
+                                            await tr_exec_reg.send("成功注册，牢记你的信息 "+server+"->"+username+"->"+password+"\n现在你可以进去玩了~\n"+"进去后先登录，游戏里聊天输/login "+password)
                                         else:
                                             await SendTrRequest(server, "cmd", "/user del "+username+" "+password)
                                             await tr_exec_reg.send("注册失败，请截图私聊服管进行相应处理")
@@ -276,9 +276,9 @@ async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
                                                     message=event.get_user_id()+"在"+server+"注册"+username+"失败"+str(exec_result['response']),
                                                 )
                             else:
-                                await tr_exec_reg.reject("用户名包含中文数字下划线以外的字符，请重新输入")
+                                await tr_exec_reg.reject("用户名包含中文英文数字下划线以外的字符，请重新输入")
                         else:
-                            await tr_exec_reg.send("你已在"+server+"注册过了，一个人只能注册一个号哦")
+                            await tr_exec_reg.send("你已在"+server+"注册过了，一个人一个服只能注册一个号哦")
                     else:
                         await tr_exec_reg.send("服名不存在或服务器没在开，请重新输入")
                 else:
@@ -475,7 +475,7 @@ async def tr_shop_(bot: Bot, event: Event):
         if page==total:
             end=start+count%num
         elif page>total:
-            await tr_shop.finish("一共就"+str(total)+"页，你给我打个"+str(page)+"?")
+            await tr_shop.finish("一共就"+str(total)+"页")
         elif page<0:
             await tr_shop.finish("你TM负数页码都整出来了是吧")
         for i in range(start,end):
@@ -497,7 +497,7 @@ async def tr_buy_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         command=str(event.get_message()).strip().split(" ")
         if len(str(command)) > 3:
-            server=command[0]
+            server=command[0].replace("/","")
             username=command[1]
             good=command[2]
             cost=shop_list[int(good)-1][2]
@@ -507,19 +507,16 @@ async def tr_buy_(bot: Bot, event: Event):
             if score_result:
                 if score_result[0][2]-cost>=0:
                     # 查询玩家是否在线
-                    online_result=await SendTrRequest(server,"inv",username)
+                    online_result=await SendTrRequest(server, "inv", username)
                     if online_result:
                         if online_result['status']=='200':
                             # 扣除积分
-                            delete_result=await tr_delete_score(int(event.get_user_id()),score_result[0][3]-cost)
+                            delete_result=await tr_delete_score(int(event.get_user_id()),score_result[0][2]-cost)
                             if delete_result:
                                 # 执行给物品指令
                                 exec_result=await SendTrRequest(server,"cmd",exec)
                                 if exec_result:
-                                    if exec_result['response'][0][0:4]=='Gave':
-                                        await tr_buy.send("已发放"+shop_list[int(good)-1][0]+"给"+username)
-                                    else:
-                                        await tr_buy.send("未成功发放，花积分买了个教训(")
+                                    await tr_buy.send(str(exec_result['response'][0]))
                                 else:
                                     await tr_buy.send("服不存在或裂开了，积分花了个寂寞(")
                             else:
