@@ -24,7 +24,7 @@ tr_menu_list="<服名>在线\n" \
     "trqd\n" \
     "baka值\n" \
     "tr店\n" \
-    "看baka\n" \
+    "看baka\n"
 
 # 服管菜单
 admin_menu = on_command("服管菜单", priority=5, permission=GROUP)
@@ -269,10 +269,10 @@ async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
                                     else:
                                         await tr_exec_reg.send("注册失败")
                                         for group in TR_ADMIN_GROUP:
-                                                await bot.send_group_msg(
-                                                    group_id=int(group),
-                                                    message=event.get_user_id()+"在"+server+"注册"+username+"失败"+str(exec_result['response']),
-                                                )
+                                            await bot.send_group_msg(
+                                                group_id=int(group),
+                                                message=event.get_user_id()+"在"+server+"注册"+username+"失败"+str(exec_result['response']),
+                                            )
                             else:
                                 await tr_exec_reg.reject("名包含中文英文数字下划线以外的字符，请重新输入")
                         else:
@@ -387,7 +387,7 @@ async def sign_in_(bot: Bot, event: Event, state: T_State):
                         add_score=random.randint(4,6)
                     score_add=await tr_update_score(event.get_user_id(),int(result[0][2])+add_score,count)
                     if score_add:
-                        await sign_in.send("成惹，baka值+"+str(add_score)+"\n现在拥有baka值"+str(int(result[0][2])+add_score)+"\n已连续"+str(count)+"天")
+                        await sign_in.send("baka值+"+str(add_score)+"\n现baka值"+str(int(result[0][2])+add_score)+"\n连"+str(count)+"天")
                     else:
                         await sign_in.send("败惹")
                 else:
@@ -397,7 +397,7 @@ async def sign_in_(bot: Bot, event: Event, state: T_State):
         else:
             score_add=await tr_create_score(event.get_user_id(),1,0)
             if score_add:
-                await sign_in.send("成惹，baka值+1\n现在拥有1 baka值")
+                await sign_in.send("baka值+1\n现1 baka值")
             else:
                 await sign_in.send("败惹")
 
@@ -410,7 +410,7 @@ async def query_score_(bot: Bot, event: Event, state: T_State):
             result=await tr_sign_in(int(event.get_user_id()))
             if result:
                 if result[0][2]>=0:
-                    await query_score.send("你现在拥有"+str(result[0][2])+"baka值\n已连续"+str(result[0][3])+"天")
+                    await query_score.send("现"+str(result[0][2])+"baka值\n连"+str(result[0][3])+"天")
                 else:
                     await query_score.send("获取失败")
             else:
@@ -419,7 +419,7 @@ async def query_score_(bot: Bot, event: Event, state: T_State):
             result=await tr_sign_in(int(str(event.get_message())))
             if result:
                 if result[0][2]>=0:
-                    await query_score.send("TA现在拥有"+str(result[0][2])+"baka值\n已连续"+str(result[0][3])+"天")
+                    await query_score.send("TA现"+str(result[0][2])+"baka值\n连"+str(result[0][3])+"天")
                 else:
                     await query_score.send("获取失败")
             else:
