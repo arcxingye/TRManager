@@ -33,7 +33,22 @@ async def get_wiki_img(name: str):
         img_url = [s for s in img_result if _name+"." in s][0]
         print(img_url)
         img = urllib3.PoolManager().request('GET', img_url)
-        path = "./data/images/tr_item/"+name+".png"
+        path = "./data/TRMResources/tr_item/"+name+".png"
         with open(path, 'wb') as f:
             f.write(img.data)
         return path
+
+# 爬装备的wiki图
+# def get_arm_wiki_img(id:str):
+#     wiki_url = "https://terraria.fandom.com/zh/wiki/%E7%89%A9%E5%93%81_ID"
+#     try:
+#         page = urllib.request.urlopen(wiki_url)
+#     except:
+#         return ''
+#     else:
+#         wiki_html = page.read().decode('utf-8')
+#         reg = '<td>5117</td>'
+#         img_result = re.findall(reg, wiki_html)
+#         print(img_result)
+
+# get_arm_wiki_img("2763")
