@@ -8,7 +8,7 @@ from .config import *
 from .data_source import SendTrRequest,get_wiki_img
 from .syn_img import synInv
 
-admin_menu_list="<服名> /<命令>\n" \
+admin_menu_list="执行<服名> /<命令>\n" \
     "全服执行 /<命令>\n" \
     "<服名> !ban <角色名>\n" \
     "qq查tr <qq>\n" \
@@ -18,12 +18,12 @@ admin_menu_list="<服名> /<命令>\n" \
     "改分 <qq> <分> <天>"
 tr_menu_list="<服名>在线\n" \
     "全服在线\n" \
-    "<服名> /inv <玩家名>\n" \
-    "<服名> /arm <玩家名>\n" \
+    "<服名> inv <玩家名>\n" \
+    "<服名> arm <玩家名>\n" \
     "wiki <内容>\n" \
     "trqd\n" \
     "baka值\n" \
-    "tr店\n" \
+    "baka超商\n" \
     "看baka\n"
 
 # 服管菜单
@@ -48,7 +48,7 @@ async def tr_wiki_(bot: Bot, event: Event, state: dict):
         await tr_wiki.send("https://terraria.fandom.com/zh/index.php?search="+urllib.parse.quote(str(event.message)))
 
 # 单服在线查询
-tr_online = on_keyword([i + "在线" for i in server_alias_list], priority=4, permission=GROUP)
+tr_online = on_keyword([i + "在线" for i in server_alias_list], priority=5, permission=GROUP)
 @tr_online.handle()
 async def tr_online_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
@@ -90,23 +90,19 @@ async def all_online_(bot: Bot, event: Event):
         await all_online.send("当前全服在线总计"+str(total)+"人\n" + all.replace("Online Players ", "").replace("There are currently no players online.","").strip('\n'))
 
 # 单服执行指令
-single_exec = on_keyword([i for i in server_alias_list], priority=5, permission=GROUP)
+single_exec = on_keyword(["执行" + i for i in server_alias_list], priority=5, permission=GROUP)
 @single_exec.handle()
 async def single_exec_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
     if len(command) > 1:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            exec_cmd=''
-            i=0
-            for item in command:
-                if i>0:
-                    exec_cmd+=item+" "
-                i+=1
-            server_exec_result = await SendTrRequest(command[0].replace("/",""), "cmd", exec_cmd.strip())
+            server=command[0].replace("执行","")
+            del(command[0])
+            exec_cmd=' '.join(command)
+            server_exec_result = await SendTrRequest(server, "cmd", str(exec_cmd).strip())
             if server_exec_result:
                 if server_exec_result['status'] == '200':
-                    server_exec_result = ';'.join(
-                        server_exec_result['response'])
+                    server_exec_result = '\n'.join(server_exec_result['response'])
                 else:
                     server_exec_result = "响应错误~ err 2"
             else:
@@ -123,8 +119,7 @@ async def all_exec_(bot: Bot, event: Event):
             single_result = await SendTrRequest(item, "cmd", str(event.message).strip())
             if single_result:
                 if single_result['status'] == '200':
-                    all_result += (item+">" +
-                                   ';'.join(single_result['response'])+"\n")
+                    all_result += (item+">" + ''.join(single_result['response'])+"\n")
                 else:
                     all_result += (item+">响应错误~ err 2\n")
             else:
@@ -132,14 +127,13 @@ async def all_exec_(bot: Bot, event: Event):
         await all_exec.send(all_result)
 
 # 执行ban
-tr_cmd_ban = on_keyword(
-    [i + " !ban" for i in server_alias_list], priority=4, permission=GROUP)
+tr_cmd_ban = on_keyword([i + " !ban" for i in server_alias_list], priority=5, permission=GROUP)
 @tr_cmd_ban.handle()
 async def tr_cmd_ban_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
     if len(command) > 2:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            server_exec_result = (await SendTrRequest(command[0].replace("/",""), "ban", command[2]))
+            server_exec_result = await SendTrRequest(command[0].replace("/",""), "ban", command[2])
             if server_exec_result:
                 if server_exec_result['status'] == '200':
                     server_exec_result = server_exec_result['response']
@@ -150,8 +144,7 @@ async def tr_cmd_ban_(bot: Bot, event: Event):
             await tr_cmd_ban.send(server_exec_result)
 
 # 查背包
-tr_inv = on_keyword(
-    [i + " /inv" for i in server_alias_list], priority=4, permission=GROUP)
+tr_inv = on_keyword([i + " inv" for i in server_alias_list], priority=5, permission=GROUP)
 @tr_inv.handle()
 async def tr_inv_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
@@ -159,10 +152,10 @@ async def tr_inv_(bot: Bot, event: Event):
         if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
             inv_server=command[0].replace("/","")
             inv_name=command[2]
-            server_inv_result = await SendTrRequest(inv_server, "inv", inv_name)
-            if server_inv_result:
-                if server_inv_result['status'] == '200':
-                    server_inv_result = server_inv_result['inventory']
+            result = await SendTrRequest(inv_server, "inv", inv_name)
+            if result:
+                if result['status'] == '200':
+                    server_inv_result = result['inventory']
                     s1 = []
                     s2 = []
                     s3 = []
@@ -172,14 +165,14 @@ async def tr_inv_(bot: Bot, event: Event):
                         s2.append(data[1])
                     for item in s1:
                         if item:
-                            tr_item_path="./data/images/tr_item/"+item+".png"
+                            tr_item_path="./data/TRMResources/tr_item/"+item+".png"
                             if os.path.exists(tr_item_path):
                                 s3.append(tr_item_path)
                             else:
                                 s3.append((await get_wiki_img(item)))
                         else:
                             s3.append('')
-                    inv_result = await synInv(s3,s2,inv_name)
+                    inv_result = await synInv(s3,s2,result['username'])
                     if inv_result:
                         test=str(os.path.abspath(inv_result)).replace(r'\\',r'/')
                         server_inv_result = [{
@@ -197,8 +190,7 @@ async def tr_inv_(bot: Bot, event: Event):
             await tr_inv.send(server_inv_result)
 
 # 查装备
-tr_arm = on_keyword(
-    [i + " /arm" for i in server_alias_list], priority=4, permission=GROUP)
+tr_arm = on_keyword([i + " arm" for i in server_alias_list], priority=5, permission=GROUP)
 @tr_arm.handle()
 async def tr_arm_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
@@ -212,32 +204,19 @@ async def tr_arm_(bot: Bot, event: Event):
                     server_inv_result = server_inv_result['armor']
                     await tr_arm.send(server_inv_result)
 
-# # 注册提示 注意 由于私聊这个会被冻结所以相关提示放公告了
-# tr_reg_tip = on_command("注册", priority=4, permission=PRIVATE)
-# @tr_reg_tip.handle()
-# async def tr_reg_tip_(bot: Bot, event: Event, state: T_State):
-#     if VerifyTrGroup(str(event.sender.group_id)) or VerifyPermissions(str(event.sender.group_id)):
-#         msg=''
-#         for item in server_alias_list:
-#             result=await SendTrRequest(item, "cmd", "/playing")
-#             if result:
-#                 msg+=item+","
-#         await tr_reg_tip.send("打：\n/<服名> /reg 角色名 密码\n示例:在x77整个名为test的角色即输入/x77 /reg test abcdefg\n1.每个内容之间只有一个空格\n2.名只能中文英文数字下划线，且密码不能用空格\n3.仅能在开放的服整，目前开放："+msg)
-
 # 执行注册
-tr_exec_reg = on_keyword(["注册"+i for i in server_alias_list], priority=4, permission=PRIVATE)
+tr_exec_reg = on_keyword(["注册"+i for i in server_alias_list], priority=5, permission=PRIVATE)
 @tr_exec_reg.handle()
-async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
+async def tr_exec_reg_(bot: Bot, event: Event):
     if VerifyTrGroup(str(event.sender.group_id)) or VerifyPermissions(str(event.sender.group_id)):
         command=str(event.get_message()).strip().split(" ")
         if len(command)==3:
             server=command[0].replace("注册","").replace("/","")
             username=command[1]
             password=command[2]
-            print(server,username,password)
-            # 验证是否有空
+            # 验证是否有空值
             if server and username and password:
-                VerifyBan=await get_tr_isban(event.get_user_id())
+                VerifyBan=get_tr_isban(event.get_user_id())
                 # 验证QQ是否被封禁
                 if not VerifyBan:
                     result=False
@@ -245,7 +224,7 @@ async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
                         if server==item:
                             result=await SendTrRequest(item, "cmd", "/playing")
                     if result:
-                        reged=await get_tr_reged(int(event.get_user_id()),server)
+                        reged=get_tr_reged(int(event.get_user_id()),server)
                         #验证是否已注册
                         if not reged:
                             if re.search("^[\u4e00-\u9fa5_a-zA-Z0-9]+$", username, flags=0):
@@ -254,33 +233,32 @@ async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
                                     if exec_result['response'][0]=="User "+username+" already exists!":
                                         await tr_exec_reg.send("该服id:"+username+"已存在，请尝试使用其他名字")
                                     elif exec_result['response'][0]=="Account "+username+" has been added to group default!":
-                                        insert_result=await tr_add_user(event.get_user_id(),server,username)
-                                        print(insert_result)
+                                        insert_result=tr_add_user(event.get_user_id(),server,username)
                                         if insert_result:
                                             await tr_exec_reg.send("已完成")
                                         else:
-                                            await SendTrRequest(server, "cmd", "/user del "+username+" "+password)
+                                            del_result=await SendTrRequest(server, "cmd", "/user del "+username+" "+password)
                                             await tr_exec_reg.send("失败了，请截图私聊服管进行相应处理")
                                             for group in TR_ADMIN_GROUP:
                                                 await bot.send_group_msg(
                                                     group_id=int(group),
-                                                    message=event.get_user_id()+"在"+server+"注册"+username+"失败,请注意可能需要删除该账号",
+                                                    message=event.get_user_id()+"在"+server+"reg"+username+"失败,请注意可能需要删除该账号，返回"+str(del_result),
                                                 )
                                     else:
-                                        await tr_exec_reg.send("注册失败")
+                                        await tr_exec_reg.send("reg失败")
                                         for group in TR_ADMIN_GROUP:
                                             await bot.send_group_msg(
                                                 group_id=int(group),
-                                                message=event.get_user_id()+"在"+server+"注册"+username+"失败"+str(exec_result['response']),
+                                                message=event.get_user_id()+"在"+server+"reg"+username+"失败"+str(exec_result['response']),
                                             )
                             else:
-                                await tr_exec_reg.reject("名包含中文英文数字下划线以外的字符，请重新输入")
+                                await tr_exec_reg.send("名包含中文英文数字下划线以外的字符，请重新输入")
                         else:
                             await tr_exec_reg.send("你已在"+server+"整过了，一人一服一号~")
                     else:
                         await tr_exec_reg.send("服名不存在或没在开，请重新输入")
                 else:
-                    await tr_exec_reg.send("你已被封禁，无法进行操作。理由："+VerifyBan[0][2])
+                    await tr_exec_reg.send("你已被封禁，无法进行操作。理由:"+VerifyBan[0][2])
             else:
                 await tr_exec_reg.send("命令中存在空值")
         else:
@@ -289,11 +267,11 @@ async def tr_exec_reg_(bot: Bot, event: Event, state: T_State):
 # 查询qq号:
 tr_qq = on_command("tr查qq", priority=5, permission=GROUP)
 @tr_qq.handle()
-async def tr_qq_(bot: Bot, event: Event, state: T_State):
+async def tr_qq_(bot: Bot, event: Event):
     command=str(event.get_message()).strip().split(" ")
-    if len(str(command)) > 2:
+    if len(command) > 1:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            result=await get_tr_qq(command[0],command[1])
+            result=get_tr_qq(command[0],command[1])
             if result:
                 await tr_qq.send(str(result[0][1]))
             else:
@@ -302,9 +280,9 @@ async def tr_qq_(bot: Bot, event: Event, state: T_State):
 # 查询tr号:
 qq_tr = on_command("qq查tr", priority=5, permission=GROUP)
 @qq_tr.handle()
-async def qq_tr_(bot: Bot, event: Event, state: T_State):
+async def qq_tr_(bot: Bot, event: Event):
     if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-        result=await get_qq_tr(str(event.get_message()).strip())
+        result=get_qq_tr(str(event.get_message()).strip())
         if result:
             msg=''
             for item in result:
@@ -316,14 +294,14 @@ async def qq_tr_(bot: Bot, event: Event, state: T_State):
 # 加入黑名单
 add_ban = on_command("trban", priority=5, permission=GROUP)
 @add_ban.handle()
-async def add_ban_(bot: Bot, event: Event, state: T_State):
+async def add_ban_(bot: Bot, event: Event):
     command=str(event.get_message()).strip().split(" ")
     if len(command)>1:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            result=await tr_add_ban(int(command[0]),str(command[1]))
+            result=tr_add_ban(int(command[0]),str(command[1]))
             if result:
                 #全服删除账号
-                user_list=await get_qq_tr(int(command[0]))
+                user_list=get_qq_tr(int(command[0]))
                 if user_list:
                     user=[]
                     server=[]
@@ -339,33 +317,33 @@ async def add_ban_(bot: Bot, event: Event, state: T_State):
                             msg+=y+"删除账号成功\n"
                         else:
                             msg+=y+"删除账号失败\n"
-                    sql_result=await tr_del_user(int(command[0]))
+                    sql_result=tr_del_user(int(command[0]))
                     if sql_result:
                         await add_ban.send(msg+"插件数据库中删除[成功]，请注意如有服务器未删除成功的账号，需要服管手动去清除")
                     else:
                         await add_ban.send(msg+"插件数据库中删除[失败]，请注意如有服务器未删除成功的账号，需要服管手动去清除")
                 else:
-                    await add_ban.send("加入黑名单成功，但是插件数据库中没有该qq注册的记录")
+                    await add_ban.send("加入黑名单成功，但是插件数据库中没有该qq reg的记录")
             else:
                 await add_ban.send("操作失败")
 
 # 删除黑名单
 bandel = on_command("bandel", priority=5, permission=GROUP)
 @bandel.handle()
-async def bandel_(bot: Bot, event: Event, state: T_State):
+async def bandel_(bot: Bot, event: Event):
     if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-        result=await tr_del_ban(int(str(event.get_message()).strip()))
+        result=tr_del_ban(int(str(event.get_message()).strip()))
         if result:
             await bandel.send("解除黑名单成功")
         else:
             await bandel.send("解除黑名单失败")
 
 # 签到
-sign_in = on_command("trqd", priority=5, permission=GROUP)
+sign_in = on_command("trqd", aliases={"tr签到"}, priority=5, permission=GROUP)
 @sign_in.handle()
-async def sign_in_(bot: Bot, event: Event, state: T_State):
+async def sign_in_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        result=await tr_sign_in(event.get_user_id())
+        result=tr_sign_in(event.get_user_id())
         if result:
             if result[0][2]>=0:
                 time_dif=(datetime.now()-datetime.strptime(str(result[0][4]),"%Y-%m-%d")).days
@@ -385,9 +363,9 @@ async def sign_in_(bot: Bot, event: Event, state: T_State):
                         add_score=random.randint(3,5)
                     elif count>=7:
                         add_score=random.randint(4,6)
-                    score_add=await tr_update_score(event.get_user_id(),int(result[0][2])+add_score,count)
+                    score_add=tr_update_score(event.get_user_id(),int(result[0][2])+add_score,count)
                     if score_add:
-                        await sign_in.send("baka值+"+str(add_score)+"\n现baka值"+str(int(result[0][2])+add_score)+"\n连"+str(count)+"天")
+                        await sign_in.send("baka值"+str(result[0][2])+"+"+str(add_score)+"连"+str(count)+"天")
                     else:
                         await sign_in.send("败惹")
                 else:
@@ -395,31 +373,31 @@ async def sign_in_(bot: Bot, event: Event, state: T_State):
             else:
                 await sign_in.send("获取失败")
         else:
-            score_add=await tr_create_score(event.get_user_id(),1,0)
+            score_add=tr_create_score(event.get_user_id(),1,0)
             if score_add:
-                await sign_in.send("baka值+1\n现1 baka值")
+                await sign_in.send("baka值+1")
             else:
                 await sign_in.send("败惹")
 
 # 查询积分
 query_score = on_command("baka值", priority=5, permission=GROUP)
 @query_score.handle()
-async def query_score_(bot: Bot, event: Event, state: T_State):
+async def query_score_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
         if len(str(event.get_message()))==0:
-            result=await tr_sign_in(int(event.get_user_id()))
+            result=tr_sign_in(int(event.get_user_id()))
             if result:
                 if result[0][2]>=0:
-                    await query_score.send("现"+str(result[0][2])+"baka值\n连"+str(result[0][3])+"天")
+                    await query_score.send("现"+str(result[0][2])+"baka值连"+str(result[0][3])+"天")
                 else:
                     await query_score.send("获取失败")
             else:
                 await query_score.send("未找到，先来报道吧。/trqd")
         elif len(str(event.get_message()))>0:
-            result=await tr_sign_in(int(str(event.get_message())))
+            result=tr_sign_in(int(str(event.get_message())))
             if result:
                 if result[0][2]>=0:
-                    await query_score.send("TA现"+str(result[0][2])+"baka值\n连"+str(result[0][3])+"天")
+                    await query_score.send("TA现"+str(result[0][2])+"baka值连"+str(result[0][3])+"天")
                 else:
                     await query_score.send("获取失败")
             else:
@@ -428,34 +406,34 @@ async def query_score_(bot: Bot, event: Event, state: T_State):
 # 积分排行榜
 score_top = on_command("看baka", priority=5, permission=GROUP)
 @score_top.handle()
-async def score_top_(bot: Bot, event: Event, state: T_State):
+async def score_top_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        result=await tr_score_top()
+        result=tr_score_top()
         if result:
             msg=""
             i=1
             for item in result:
                 msg+=str(i)+"."+str(item[1])+"->"+str(item[2])+"\n"
                 i+=1
-            await score_top.send(msg)
+            await score_top.send(msg+"前10的大baka们")
         else:
             await score_top.send("获取失败")
 
 # 改分
 set_score = on_command("改分", priority=5, permission=GROUP)
 @set_score.handle()
-async def set_score_(bot: Bot, event: Event, state: T_State):
+async def set_score_(bot: Bot, event: Event):
     command=str(event.get_message()).strip().split(" ")
     if len(str(command)) > 3:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            result=await tr_update_score(int(command[0]),int(command[1]),int(command[2]))
+            result=tr_update_score(int(command[0]),int(command[1]),int(command[2]))
             if result:
                 await set_score.send("更新成功")
             else:
                 await set_score.send("更新失败")
 
 # tr商店
-tr_shop = on_command("tr店", priority=5, permission=GROUP)
+tr_shop = on_command("baka超商", priority=5, permission=GROUP)
 @tr_shop.handle()
 async def tr_shop_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
@@ -489,7 +467,7 @@ async def tr_shop_(bot: Bot, event: Event):
         await tr_shop.send(title+goods+page_list+tips)
 
 # tr兑换
-tr_buy = on_command("tr换", priority=4, permission=GROUP)
+tr_buy = on_command("tr换", priority=5, permission=GROUP)
 @tr_buy.handle()
 async def tr_buy_(bot: Bot, event: Event):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
@@ -501,7 +479,7 @@ async def tr_buy_(bot: Bot, event: Event):
             cost=shop_list[int(good)-1][2]
             exec=str(shop_list[int(good)-1][1]).replace("[player]",username)
             # 查询积分
-            score_result=await tr_sign_in(event.get_user_id())
+            score_result=tr_sign_in(event.get_user_id())
             if score_result:
                 if score_result[0][2]-cost>=0:
                     # 查询玩家是否在线
@@ -509,7 +487,7 @@ async def tr_buy_(bot: Bot, event: Event):
                     if online_result:
                         if online_result['status']=='200':
                             # 扣除积分
-                            delete_result=await tr_delete_score(int(event.get_user_id()),score_result[0][2]-cost)
+                            delete_result=tr_delete_score(int(event.get_user_id()),score_result[0][2]-cost)
                             if delete_result:
                                 # 执行给物品指令
                                 exec_result=await SendTrRequest(server,"cmd",exec)
@@ -526,7 +504,7 @@ async def tr_buy_(bot: Bot, event: Event):
                 else:
                     await tr_buy.send("baka值不足")
             else:
-                await tr_buy.send("未获取到baka值数据")
+                await tr_buy.send("没有数据")
 
 # #抽奖 去世功能，会被冻结
 # tr_raffle = on_command("/tr抽奖", priority=5, permission=GROUP)
