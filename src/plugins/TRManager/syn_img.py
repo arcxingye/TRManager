@@ -2,11 +2,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 # 合成背包
 IMAGE_SIZE = 50  # 每个格子的大小
-font1 = ImageFont.truetype('C:/windows/fonts/simhei.ttf', 25)
-font2 = ImageFont.truetype('C:/windows/fonts/simhei.ttf', 18)
+font='./data/TRMResources/simhei.ttf'
+font1 = ImageFont.truetype(font, 25)
+font2 = ImageFont.truetype(font, 18)
 async def synInv(img_list: list, number: list, name: str):
     try:
-        to_image = Image.open("./data/images/inv/InvFrame.png")
+        to_image = Image.open("./data/TRMResources/inv/InvFrame.png")
         # 横向渲染5行10列
         for y in range(1, 6):
             for x in range(1, 11):
@@ -30,7 +31,10 @@ async def synInv(img_list: list, number: list, name: str):
             from_image = Image.open(img_list[58]).convert('RGBA')
             to_image.paste(from_image, (1100, 80), from_image)
             ImageDraw.Draw(to_image).text((1100, 120), number[58], font=font1)
-        save_url="./data/images/inv/inv.jpg"
+        # 名字写上图
+        ImageDraw.Draw(to_image).text((500, 10), name+" 的背包", font=font1)
+        # 保存合成后的图片
+        save_url="./data/TRMResources/inv/invCache.jpg"
         to_image.save(save_url)
     except:
         return ''
