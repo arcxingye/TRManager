@@ -97,9 +97,8 @@ async def single_exec_(bot: Bot, event: Event):
     if len(command) > 1:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
             server=command[0].replace("执行","")
-            del(command[0])
-            exec_cmd=' '.join(command)
-            server_exec_result = await SendTrRequest(server, "cmd", str(exec_cmd).strip())
+            exec_cmd=' '.join(command[1:])
+            server_exec_result = await SendTrRequest(server, "cmd", exec_cmd.strip())
             if server_exec_result:
                 if server_exec_result['status'] == '200':
                     server_exec_result = '\n'.join(server_exec_result['response'])
@@ -133,7 +132,9 @@ async def tr_cmd_ban_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
     if len(command) > 2:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            server_exec_result = await SendTrRequest(command[0].replace("/",""), "ban", command[2])
+            server=command[0].replace("/","")
+            name=' '.join(command[2:])
+            server_exec_result = await SendTrRequest(server, "ban", name)
             if server_exec_result:
                 if server_exec_result['status'] == '200':
                     server_exec_result = server_exec_result['response']
@@ -150,9 +151,9 @@ async def tr_inv_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
     if len(command) > 2:
         if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-            inv_server=command[0].replace("/","")
-            inv_name=command[2]
-            result = await SendTrRequest(inv_server, "inv", inv_name)
+            server=command[0].replace("/","")
+            name=' '.join(command[2:])
+            result = await SendTrRequest(server, "inv", name)
             if result:
                 if result['status'] == '200':
                     server_inv_result = result['inventory']
@@ -184,7 +185,7 @@ async def tr_inv_(bot: Bot, event: Event):
                     else:
                         server_inv_result = "查询处理失败，请重试"
                 else:
-                    server_inv_result = "你要找的人在"+inv_server+"神隐了~ err 2"
+                    server_inv_result = "你要找的人在"+server+"神隐了~ err 2"
             else:
                 server_inv_result = "你要执行的服爆炸了~ err 1"
             await tr_inv.send(server_inv_result)
@@ -196,9 +197,9 @@ async def tr_arm_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
     if len(command) > 2:
         if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-            inv_server=command[0].replace("/","")
-            inv_name=command[2]
-            server_inv_result = await SendTrRequest(inv_server, "inv", inv_name)
+            server=command[0].replace("/","")
+            name=' '.join(command[2:])
+            server_inv_result = await SendTrRequest(server, "inv", name)
             if server_inv_result:
                 if server_inv_result['status'] == '200':
                     server_inv_result = server_inv_result['armor']
@@ -271,7 +272,9 @@ async def tr_qq_(bot: Bot, event: Event):
     command=str(event.get_message()).strip().split(" ")
     if len(command) > 1:
         if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
-            result=get_tr_qq(command[0],command[1])
+            server=command[0]
+            name=' '.join(command[1:])
+            result=get_tr_qq(server,name)
             if result:
                 await tr_qq.send(str(result[0][1]))
             else:
