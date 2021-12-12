@@ -55,7 +55,7 @@ async def tr_online_(bot: Bot, event: Event):
         server_online = (await SendTrRequest((str(event.get_message()).strip()).replace("/","").replace("在线",""), "cmd", "/playing"))
         if server_online:
             if server_online['status'] == '200':
-                server_online = (';'.join(server_online['response'])).replace(r"Online Players", "在线玩家")
+                server_online = ('\n'.join(server_online['response'])).replace(r"Online Players", "在线玩家")
             else:
                 server_online = "响应错误~ err 2"
         else:
@@ -172,7 +172,7 @@ async def tr_inv_(bot: Bot, event: Event):
                                 s3.append((await get_wiki_img(item)))
                         else:
                             s3.append('')
-                    inv_result = await synInv(s3,s2,result['username'])
+                    inv_result = await synInv(s3,s2,result['nickname'])
                     if inv_result:
                         test=str(os.path.abspath(inv_result)).replace(r'\\',r'/')
                         server_inv_result = [{
