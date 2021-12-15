@@ -205,8 +205,16 @@ async def tr_arm_(bot: Bot, event: Event):
                     server_inv_result = server_inv_result['armor']
                     await tr_arm.send(server_inv_result)
 
+# 群聊注册提示
+tr_tip_reg=on_command("注册", priority=5, permission=GROUP)
+@tr_tip_reg.handle()
+async def tr_tip_reg_(bot: Bot, event: Event):
+    if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+        text=["私聊啊╮(╯▽╰)╭","会不会私聊？","别在群里说，来私聊"]
+        await tr_tip_reg.send(text[random.randint(0,len(text)-1)])
+
 # 执行注册
-tr_exec_reg = on_keyword(["注册"+i for i in server_alias_list], priority=5, permission=PRIVATE)
+tr_exec_reg = on_command("注册", priority=4, permission=PRIVATE)
 @tr_exec_reg.handle()
 async def tr_exec_reg_(bot: Bot, event: Event):
     if VerifyTrGroup(str(event.sender.group_id)) or VerifyPermissions(str(event.sender.group_id)):
@@ -263,7 +271,7 @@ async def tr_exec_reg_(bot: Bot, event: Event):
             else:
                 await tr_exec_reg.send("命令中存在空值")
         else:
-            await tr_exec_reg.send("指令格式不正确")
+            await tr_exec_reg.send("指令格式不正确，看看公告吧")
 
 # 查询qq号:
 tr_qq = on_command("tr查qq", priority=5, permission=GROUP)
