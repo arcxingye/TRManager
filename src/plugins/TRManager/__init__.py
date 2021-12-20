@@ -309,7 +309,7 @@ userdel = on_command("删号", priority=5, permission=GROUP)
 async def userdel_(bot: Bot, event: Event):
     command=str(event.get_message()).strip().split(" ")
     if len(command) > 1:
-        if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+        if VerifyPermissions((str(event.get_session_id()).split("_"))[1]):
             server=command[0]
             name=' '.join(command[1:])
             sql_result=tr_del_char(str(server),str(name))
