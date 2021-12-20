@@ -7,7 +7,7 @@ font1 = ImageFont.truetype(font, 25)
 font2 = ImageFont.truetype(font, 18)
 async def synInv(img_list: list, number: list, name: str):
     try:
-        to_image = Image.open("./data/TRMResources/inv/InvFrame.png")
+        to_image = Image.open("./data/TRMResources/InvFrame.png")
         # 横向渲染5行10列
         for y in range(1, 6):
             for x in range(1, 11):
@@ -34,7 +34,7 @@ async def synInv(img_list: list, number: list, name: str):
         # 名字写上图
         ImageDraw.Draw(to_image).text((500, 10), name+" 的背包", font=font1)
         # 保存合成后的图片
-        save_url="./data/TRMResources/inv/invCache.jpg"
+        save_url="./data/TRMResources/invCache.jpg"
         to_image.save(save_url)
     except:
         return ''
