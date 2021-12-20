@@ -70,10 +70,18 @@ def tr_add_user(qq:int,server:str,username:str):
     conn.commit()
     return True
 
-# user删除一个服账号
+# user删除一个账号
 def tr_del_user(qq:int):
     sql="delete from tr_user where qq=?"
     param=(np.int64(qq),)
+    cur.execute(sql, param)
+    conn.commit()
+    return True
+
+# user删除一个角色
+def tr_del_char(server:str,username:str):
+    sql="delete from tr_user where server=? and username=?"
+    param=(server,username)
     cur.execute(sql, param)
     conn.commit()
     return True

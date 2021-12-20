@@ -11,10 +11,11 @@ from .syn_img import synInv
 admin_menu_list="执行<服名> /<命令>\n" \
     "全服执行 /<命令>\n" \
     "<服名> !ban <角色名>\n" \
-    "qq查tr <qq>\n" \
-    "tr查qq <服名> <角色名>\n" \
     "trban <qq> <理由>\n" \
     "bandel <qq>\n" \
+    "qq查tr <qq>\n" \
+    "tr查qq <服名> <角色名>\n" \
+    "删号 <服名> <角色>\n" \
     "改分 <qq> <分> <天>"
 tr_menu_list="<服名>在线\n" \
     "全服在线\n" \
@@ -24,7 +25,7 @@ tr_menu_list="<服名>在线\n" \
     "trqd\n" \
     "baka值\n" \
     "baka超商\n" \
-    "看baka\n"
+    "看baka"
 
 # 服管菜单
 admin_menu = on_command("服管菜单", priority=5, permission=GROUP)
@@ -246,7 +247,7 @@ async def tr_exec_reg_(bot: Bot, event: Event):
                                         if insert_result:
                                             await tr_exec_reg.send("已完成")
                                         else:
-                                            del_result=await SendTrRequest(server, "cmd", "/user del "+username+" "+password)
+                                            del_result=await SendTrRequest(server, "cmd", "/user del "+username)
                                             await tr_exec_reg.send("失败了，请截图私聊服管进行相应处理")
                                             for group in TR_ADMIN_GROUP:
                                                 await bot.send_group_msg(
@@ -301,6 +302,21 @@ async def qq_tr_(bot: Bot, event: Event):
             await qq_tr.send(msg)
         else:
             await qq_tr.send("没有记录")
+
+# 删除单个服角色
+userdel = on_command("删号", priority=5, permission=GROUP)
+@userdel.handle()
+async def userdel_(bot: Bot, event: Event):
+    command=str(event.get_message()).strip().split(" ")
+    if len(command) > 1:
+        if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
+            server=command[0]
+            name=' '.join(command[1:])
+            sql_result=tr_del_char(str(server),str(name))
+            if sql_result:
+                await userdel.send("删除完成")
+            else:
+                await userdel.send("删除失败")    
 
 # 加入黑名单
 add_ban = on_command("trban", priority=5, permission=GROUP)
