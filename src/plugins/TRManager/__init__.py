@@ -10,17 +10,17 @@ from .syn_img import synInv
 
 admin_menu_list="执行 <服名> /<命令>\n" \
     "全服执行 /<命令>\n" \
-    "<服名> !ban <角色名>\n" \
+    "<服名> !ban <名字>\n" \
     "trban <qq> <理由>\n" \
     "bandel <qq>\n" \
     "qq查tr <qq>\n" \
-    "tr查qq <服名> <角色名>\n" \
-    "删号 <服名> <角色>\n" \
+    "tr查qq <服名> <名字>\n" \
+    "删号 <服名> <名字>\n" \
     "改分 <qq> <分> <天>"
 tr_menu_list="<服名>在线\n" \
     "全服在线\n" \
-    "<服名> inv <玩家名>\n" \
-    "<服名> arm <玩家名>\n" \
+    "<服名> inv <名字>\n" \
+    "<服名> arm <名字>\n" \
     "wiki <内容>\n" \
     "trqd\n" \
     "baka值\n" \
