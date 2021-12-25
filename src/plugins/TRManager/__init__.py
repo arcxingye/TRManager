@@ -8,7 +8,7 @@ from .config import *
 from .data_source import SendTrRequest,get_wiki_img
 from .syn_img import synInv
 
-admin_menu_list="执行 <服名> /<命令>\n" \
+admin_menu_list="执行<服名> /<命令>\n" \
     "全服执行 /<命令>\n" \
     "<服名> !ban <名字>\n" \
     "trban <qq> <理由>\n" \
@@ -91,7 +91,7 @@ async def all_online_(bot: Bot, event: Event):
         await all_online.send("当前全服在线总计"+str(total)+"人\n" + all.replace("Online Players ", "").replace("There are currently no players online.","").strip('\n'))
 
 # 单服执行指令
-single_exec = on_keyword(["执行 " + i for i in server_alias_list], priority=5, permission=GROUP)
+single_exec = on_keyword(["执行" + i for i in server_alias_list], priority=5, permission=GROUP)
 @single_exec.handle()
 async def single_exec_(bot: Bot, event: Event):
     command=str(event.get_message()).split(" ")
