@@ -46,7 +46,7 @@ tr_wiki = on_command("wiki", priority=5, permission=GROUP)
 @tr_wiki.handle()
 async def tr_wiki_(bot: Bot, event: Event, state: dict):
     if VerifyTrGroup((str(event.get_session_id()).split("_"))[1]):
-        await tr_wiki.send("https://terraria.fandom.com/zh/index.php?search="+urllib.parse.quote(str(event.message)))
+        await tr_wiki.send("https://searchwiki.biligame.com/tr/index.php?search="+urllib.parse.quote(str(event.message)))
 
 # 单服在线查询
 tr_online = on_keyword([i + "在线" for i in server_alias_list], priority=5, permission=GROUP)
