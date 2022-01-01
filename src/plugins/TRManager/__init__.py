@@ -75,8 +75,8 @@ async def all_online_(bot: Bot, event: Event):
             single_online = await SendTrRequest(item, "cmd", "/playing")
             if single_online:
                 if single_online['status'] == '200':
-                    if(len(single_online['response']) == 2):
-                        all += (item+">"+str(single_online['response'][0]) +":"+str(single_online['response'][1]) + "\n")
+                    if(len(single_online['response']) >= 2):
+                        all += (item+">"+str(single_online['response'][0]) +":"+str(''.join(single_online['response'][1:])) + "\n")
                         num.append(re.findall('\d+', str(re.findall(r"Online Players (.*.+?)/", str(single_online['response']))))[0])
                     elif(len(single_online['response']) == 1):
                         all += (item+">"+str(single_online['response'][0])+"没人~\n")
